@@ -26,7 +26,9 @@ export default function RootLayout({
           )}
         >
           <SidebarDashBoard></SidebarDashBoard>
-          <div className="w-full h-full px-10 py-14">{children}</div>
+          <div className="w-full h-full px-10 py-14 overflow-y-scroll">
+            {children}
+          </div>
         </div>
       </body>
     </html>

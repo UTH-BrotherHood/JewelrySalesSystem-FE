@@ -4,9 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "assets.aceternity.com",
-        port: "",
-        pathname: "/**",
+        hostname: "**",
       },
     ],
   },

@@ -5,7 +5,10 @@ import {
   IconBrandTabler,
   IconBuildingWarehouse,
   IconDiamondFilled,
+  IconPackage,
   IconSettings,
+  IconStack2,
+  IconTicket,
   IconUserBolt,
   IconUsers,
   IconUsersGroup,
@@ -25,10 +28,24 @@ export default function SidebarDashBoard() {
       ),
     },
     {
-      label: "Inventory",
-      href: "/dashboard/inventory",
+      label: "Products",
+      href: "/dashboard/products",
       icon: (
-        <IconBuildingWarehouse className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <IconPackage className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Categories",
+      href: "/dashboard/categories",
+      icon: (
+        <IconStack2 className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Orders",
+      href: "/dashboard/orders",
+      icon: (
+        <IconTicket className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
@@ -43,13 +60,6 @@ export default function SidebarDashBoard() {
       href: "/dashboard/customers",
       icon: (
         <IconUsersGroup className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Profile",
-      href: "#",
-      icon: (
-        <IconUserBolt className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
