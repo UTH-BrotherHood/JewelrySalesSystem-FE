@@ -1,9 +1,9 @@
-import SignInForm from "@/containers/auth-page/signInForm";
-
 export default function Home() {
   return (
     <main className="">
-      <SignInForm />
+      <h1>
+        Welcome to <a href="https://nextjs.org">Next.js!</a>
+      </h1>
     </main>
   );
 }
