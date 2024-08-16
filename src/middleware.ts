@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const authPaths = ["sign-in"];
-const privatePaths = ["dadashboard"];
+const privatePaths = ["dashboard"];
 
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
