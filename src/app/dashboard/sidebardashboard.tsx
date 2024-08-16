@@ -17,8 +17,26 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
+import avt from "@/assets/image/avt.jpg";
+import { on } from "events";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { AlertDialogCancel } from "@radix-ui/react-alert-dialog";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function SidebarDashBoard() {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const links = [
     {
       label: "Dashboard",
@@ -69,13 +87,6 @@ export default function SidebarDashBoard() {
         <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
-    {
-      label: "Logout",
-      href: "#",
-      icon: (
-        <IconArrowLeft className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
   ];
   const [open, setOpen] = useState(false);
   return (
@@ -88,16 +99,56 @@ export default function SidebarDashBoard() {
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}
+              <div className="">
+                <AlertDialog>
+                  <AlertDialogTrigger className="flex items-center justify-start gap-2  group/sidebar py-2 text-red-500">
+                    <IconArrowLeft className="  h-5 w-5 flex-shrink-0" />
+                    Logout
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-white">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you sure you want to logout?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Your session will be closed and you will be logged out
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => {
+                          // Delete the token cookie
+                          document.cookie =
+                            "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                          // Log the logout action
+
+                          router.push("/sign-in");
+
+                          toast({
+                            title: "Logout",
+                            description: "Logout success",
+                          });
+
+                          console.log("logout");
+                        }}
+                      >
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </div>
           <div>
             <SidebarLink
               link={{
-                label: "Manu Arora",
+                label: "Admin",
                 href: "#",
                 icon: (
                   <Image
-                    src="https://assets.aceternity.com/manu.png"
+                    src={avt}
                     className="h-7 w-7 flex-shrink-0 rounded-full"
                     width={50}
                     height={50}

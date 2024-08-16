@@ -1,5 +1,4 @@
 "use client";
-import { redirect } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -11,13 +10,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SignInBodyType } from "@/types/auth";
 import { useToast } from "@/components/ui/use-toast";
-import { cookies } from "next/headers";
-
 export default function SignInForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -56,10 +55,11 @@ export default function SignInForm() {
       }`; // Hết hạn sau 7 ngày
 
       toast({
+        title: "Sign-in",
         description: "Sign-in success",
       });
 
-      redirect("/dashboard");
+      router.push("/dashboard");
     } catch (error: any) {
       toast({
         description: "Sign-in error",
