@@ -32,6 +32,7 @@ import {
 import { AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+import { ModeToggle } from "@/components/ui/toggle-theme";
 
 export default function SidebarDashBoard() {
   const router = useRouter();
@@ -141,7 +142,7 @@ export default function SidebarDashBoard() {
               </div>
             </div>
           </div>
-          <div>
+          <div className="">
             <SidebarLink
               link={{
                 label: "Admin",
