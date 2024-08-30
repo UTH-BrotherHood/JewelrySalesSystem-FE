@@ -98,7 +98,8 @@ export default function ProductsPage() {
           Add Products
         </Button>
       </div>
-      <Table className="bg-white rounded-md shadow-md">
+
+      <Table className="bg-white rounded-md  shadow-md">
         <TableCaption>A list of products.</TableCaption>
         <TableHeader>
           <TableRow>
@@ -112,11 +113,10 @@ export default function ProductsPage() {
             <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="space-y-[40px]">
           {invoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
+            <TableRow className="" key={invoice.invoice}>
               <TableCell className="flex items-center gap-2 font-medium">
-                <input type="checkbox"></input>
                 <div className="w-[44px] h-[44px] overflow-hidden">
                   <Image
                     src={
@@ -152,10 +152,7 @@ export default function ProductsPage() {
         </TableBody>
         {/* tesst */}
         <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
-          </TableRow>
+          <TableRow></TableRow>
         </TableFooter>
       </Table>
     </div>
