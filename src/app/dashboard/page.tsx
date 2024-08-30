@@ -12,12 +12,12 @@ export default function Dashboard() {
     <main className="text-black dark:text-white">
       <h1 className="text-3xl font-bold">DashBoard</h1>
       <Summary />
-      <div className="flex flex-col gap-8 w-full mt-8">
-        <div className="flex  w-full h-[33rem] gap-8">
+      <div className="flex flex-col justify-center gap-8 w-full mt-8">
+        <div className="flex justify-center  w-full h-[40%] gap-8">
           <RevenueChart />
           <ProductsByRevenue />
         </div>
-        <div className="flex gap-8 h-[25rem]">
+        <div className="flex justify-between gap-8 ">
           <TopSellChart />
           <TopSalesEmployees />
           <ProductsByCategory />
