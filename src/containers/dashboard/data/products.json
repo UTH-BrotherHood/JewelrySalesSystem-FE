@@ -1,0 +1,123 @@
+[
+    {
+        "productId": "d16ea01d-4d8a-4531-80e4-18ffe5952d20",
+        "categoryName": "Jewelry",
+        "name": "Gold Ring",
+        "description": "A beautiful gold ring",
+        "costPrice": 100.50,
+        "weight": 10.50,
+        "laborCost": 20.00,
+        "stoneCost": 30.00,
+        "stockQuantity": 50
+    },
+    {
+        "productId": "d45a01d9-3f4d-4e0e-b2f7-123456789abc",
+        "categoryName": "Jewelry",
+        "name": "Silver Necklace",
+        "description": "A stunning silver necklace",
+        "costPrice": 150.75,
+        "weight": 15.00,
+        "laborCost": 25.00,
+        "stoneCost": 40.00,
+        "stockQuantity": 30
+    },
+    {
+        "productId": "f17ba34d-9f2e-4c9b-8ef7-abcdef123456",
+        "categoryName": "Jewelry",
+        "name": "Diamond Bracelet",
+        "description": "An elegant diamond bracelet",
+        "costPrice": 500.00,
+        "weight": 8.00,
+        "laborCost": 50.00,
+        "stoneCost": 200.00,
+        "stockQuantity": 10
+    },
+    {
+        "productId": "e37c0b5a-9d3f-4e8c-8bcf-12345abcd678",
+        "categoryName": "Jewelry",
+        "name": "Emerald Earrings",
+        "description": "A pair of emerald earrings",
+        "costPrice": 250.00,
+        "weight": 5.00,
+        "laborCost": 30.00,
+        "stoneCost": 100.00,
+        "stockQuantity": 20
+    },
+    {
+        "productId": "b1d3f6e8-7a9d-4c5b-8c7f-abcdef987654",
+        "categoryName": "Jewelry",
+        "name": "Platinum Ring",
+        "description": "A luxurious platinum ring",
+        "costPrice": 700.00,
+        "weight": 12.00,
+        "laborCost": 70.00,
+        "stoneCost": 300.00,
+        "stockQuantity": 15
+    },
+    {
+        "productId": "c2f4e5d7-8a9b-4c3d-8ef6-123456abcd89",
+        "categoryName": "Jewelry",
+        "name": "Ruby Pendant",
+        "description": "A radiant ruby pendant",
+        "costPrice": 450.00,
+        "weight": 6.50,
+        "laborCost": 40.00,
+        "stoneCost": 150.00,
+        "stockQuantity": 25
+    },
+    {
+        "productId": "a3b5c6d7-9e8a-4f2b-8c3d-abcdef456789",
+        "categoryName": "Jewelry",
+        "name": "Sapphire Brooch",
+        "description": "A classic sapphire brooch",
+        "costPrice": 350.00,
+        "weight": 9.00,
+        "laborCost": 35.00,
+        "stoneCost": 120.00,
+        "stockQuantity": 18
+    },
+    {
+        "productId": "d8e7f9a6-7c8b-4e1d-8f3a-123abc456def",
+        "categoryName": "Jewelry",
+        "name": "Pearl Anklet",
+        "description": "A delicate pearl anklet",
+        "costPrice": 200.00,
+        "weight": 7.50,
+        "laborCost": 20.00,
+        "stoneCost": 80.00,
+        "stockQuantity": 22
+    },
+    {
+        "productId": "b9c8d7e6-5a4b-3c2d-1e0f-abcdef012345",
+        "categoryName": "Jewelry",
+        "name": "Amethyst Necklace",
+        "description": "A gorgeous amethyst necklace",
+        "costPrice": 300.00,
+        "weight": 13.00,
+        "laborCost": 50.00,
+        "stoneCost": 140.00,
+        "stockQuantity": 12
+    },
+    {
+        "productId": "f0e9d8c7-6b5a-4c3d-8e7f-123456abcdef",
+        "categoryName": "Jewelry",
+        "name": "Opal Ring",
+        "description": "A mesmerizing opal ring",
+        "costPrice": 275.00,
+        "weight": 11.00,
+        "laborCost": 45.00,
+        "stoneCost": 110.00,
+        "stockQuantity": 20
+    },
+    {
+        "productId": "f0e9d8c7-6b5a-4c3d-8e7f-129456abcdef",
+        "categoryName": "Jewelry",
+        "name": "Opal Ring Vip",
+        "description": "A mesmerizing opal ring",
+        "costPrice": 275.00,
+        "weight": 11.00,
+        "laborCost": 45.00,
+        "stoneCost": 110.00,
+        "stockQuantity": 20
+    }
+]
