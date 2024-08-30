@@ -53,7 +53,7 @@ const chartConfig = {
 
 export function TopSalesEmployees() {
   return (
-    <Card className="h-full min-w-[30rem]">
+    <Card className="flex-[2]">
       <CardHeader>
         <CardTitle>Top Sales Employees</CardTitle>
         <CardDescription>January - June 2024</CardDescription>

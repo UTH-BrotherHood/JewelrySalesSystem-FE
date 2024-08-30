@@ -58,7 +58,7 @@ export function TopSellChart() {
   }, []);
 
   return (
-    <Card className="flex flex-col h-full rounded-lg min-w-[20%]">
+    <Card className="flex flex-1  flex-col  rounded-lg">
       <CardHeader className="items-center pb-0">
         <CardTitle>Top-Selling Products Chart</CardTitle>
         <CardDescription>January - June 2024</CardDescription>

@@ -35,13 +35,13 @@ const chartConfig = {
 
 export function ProductsByRevenue() {
   return (
-    <Card className="h-full rounded-lg w-[50%]">
+    <Card className="rounded-lg flex-1">
       <CardHeader>
         <CardTitle>Products By Revenue Chart</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
       </CardHeader>
-      <CardContent className="mt-16">
-        <ChartContainer config={chartConfig}>
+      <CardContent>
+        <ChartContainer className="h-full" config={chartConfig}>
           <BarChart
             accessibilityLayer
             data={chartData}

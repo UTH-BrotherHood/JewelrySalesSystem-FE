@@ -35,7 +35,7 @@ const chartConfig = {
 
 export function RevenueChart() {
   return (
-    <Card className="rounded-lg h-full w-[50%]">
+    <Card className="rounded-lg flex-1">
       <CardHeader>
         <CardTitle>Revenue Chart</CardTitle>
         <CardDescription>
