@@ -91,7 +91,7 @@ export default function SidebarDashBoard() {
   ];
   const [open, setOpen] = useState(false);
   return (
-    <div>
+    <div className="h-screen fixed top-0 bottom-0 left-0 bg-white z-50 border-l">
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
