@@ -54,7 +54,7 @@ const chartConfig = {
 
 export function ProductsByCategory() {
   return (
-    <Card className="h-full w-[35rem]">
+    <Card className="flex-[2]">
       <CardHeader>
         <CardTitle>Products By Category Chart</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
