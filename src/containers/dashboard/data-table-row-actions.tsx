@@ -3,8 +3,7 @@
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 import { Row } from "@tanstack/react-table";
 
-import { labels } from "./data/data";
-import { taskSchema } from "./data/schema";
+import { categoryNames } from "./data/data";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,6 +18,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { productSchema } from "@/containers/dashboard/data/productsSchema";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
@@ -27,7 +27,7 @@ interface DataTableRowActionsProps<TData> {
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
-  const task = taskSchema.parse(row.original);
+  const task = productSchema.parse(row.original);
 
   return (
     <DropdownMenu>
@@ -48,8 +48,8 @@ export function DataTableRowActions<TData>({
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={task.label}>
-              {labels.map((label) => (
+            <DropdownMenuRadioGroup value={task.categoryName}>
+              {categoryNames.map((label) => (
                 <DropdownMenuRadioItem key={label.value} value={label.value}>
                   {label.label}
                 </DropdownMenuRadioItem>
