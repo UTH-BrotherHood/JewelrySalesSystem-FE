@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
 class Http {
@@ -55,7 +54,7 @@ export class HttpError extends Error {
   status: number;
   payload: {
     message: string;
-    [key: string]: any; 
+    [key: string]: any;
   };
 
   constructor({
