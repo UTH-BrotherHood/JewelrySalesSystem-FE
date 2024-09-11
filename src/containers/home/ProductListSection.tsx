@@ -9,7 +9,7 @@ import SortOptions from "./SortOption";
 interface ProductListProps {
     selectedCategory: string | null;
     searchTerm: string;
-    sortOption: string;
+  
     onAddToCart: (product: IProduct) => void;
 }
 

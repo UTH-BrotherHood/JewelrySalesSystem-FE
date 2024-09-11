@@ -14,8 +14,14 @@ export interface CartResponse {
   items: CartItem[];
   totalAmount: number;
 }
-
+export interface PaymentMethod {
+  id: string;
+  name: string;
+  description?: string;
+}
 export interface Promotion {
+  startDate: string;
+  endDate: string;
   result: any;
   promotionCode: string;
   name: string;

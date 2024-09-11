@@ -2,17 +2,18 @@ import { Customer, CustomerRespone } from "@/types/customerTypes";
 import http from "@/utils/http";
 import Cookies from "js-cookie";
 
-// Fetch customer by name
-export const fetchCustomerByName = async (
-  name: string
-): Promise<CustomerRespone> => {
+
+export const fetchCustomerByPhone = async (
+  phone: string
+): Promise<CustomerRespone > => {
+
   try {
     const token = Cookies.get("token");
     if (token) {
       http.setToken(token);
     }
     const response = await http.get<CustomerRespone>(
-      `/customers/by-name?name=${encodeURIComponent(name)}`
+      `/customers/by-phone?phone=${phone}`
     );
 
     // Assuming that the API returns an array of customers, even if only one is found

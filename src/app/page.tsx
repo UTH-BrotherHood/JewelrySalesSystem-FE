@@ -1,40 +1,50 @@
-'use client'
-import { useContext, useEffect, useState } from "react";
+"use client";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import axios, { AxiosError } from "axios";
+import { useContext, useEffect, useState } from "react";
 
-import Cart from "@/containers/home/CartInHome";
-import CategoryList from "@/containers/home/CategorySection";
-import ProductList from "@/containers/home/ProductListSection";
-
-import TotalSection from "@/containers/home/TotalSection";
 import StepCustomer from "@/containers/cart/StepCustomer";
 import Invoice from "@/containers/home/Invoice";
+import ProductList from "@/containers/home/ProductListSection";
 
+import {
+  addToCart,
+  decreaseItemQuantity,
+  fetchCart,
+  fetchPromotion,
+  increaseItemQuantity,
+  removeFromCart,
+} from "@/api/cartApis";
+import { createCustomer, fetchCustomerByPhone } from "@/api/customerApis";
 import { EmployeeContext } from "@/components/context-provider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
+import StepCart from "@/containers/cart/StepCart";
+import SearchInput from "@/containers/home/SearchInput";
 import { useAppSelector } from "@/lib/hooks";
-import { fetchCart, fetchPromotion } from "@/api/cartApis";
-import { createCustomer, fetchCustomerByName } from "@/api/customerApis";
 import { CartResponse, Promotion } from "@/types/cartTypes";
 import { Customer } from "@/types/customerTypes";
-import SearchInput from "@/containers/home/SearchInput";
-import { FaSquarePollHorizontal } from "react-icons/fa6";
-import { MdOutlineDashboard } from "react-icons/md";
+import { IProduct } from "@/types/productTypes";
 import { IoLogInOutline } from "react-icons/io5";
+import { MdOutlineDashboard } from "react-icons/md";
 import { TiThMenu } from "react-icons/ti";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function Home() {
-  // Context and Redux
+  const { toast } = useToast();
   const { employee, setEmployee } = useContext(EmployeeContext) || {};
   const router = useRouter();
   const employeeName = useAppSelector((state) => state.employee.username);
   const employeeId = useAppSelector((state: any) => state.employee.employeeId);
 
-  // State
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [cart, setCart] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -42,28 +52,26 @@ export default function Home() {
   const [couponCode, setCouponCode] = useState<string>("");
   const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [discountedTotal, setDiscountedTotal] = useState<number>(0);
-
   const [customerLoading, setCustomerLoading] = useState<boolean>(false);
-  const [customerName, setCustomerName] = useState<string>("");
+  const [customerPhone, setCustomerPhone] = useState<string>("");
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [customerError, setCustomerError] = useState<string | null>(null);
-  const [showCreateCustomerForm, setShowCreateCustomerForm] = useState<boolean>(false);
+  const [showCreateCustomerForm, setShowCreateCustomerForm] =
+    useState<boolean>(false);
   const [newCustomerDetails, setNewCustomerDetails] = useState({
     email: "",
     phone: "",
     address: "",
     customername: "",
   });
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<string>("");
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("");
-
-  // Get current date and time
   const getCurrentDateTime = () => {
     const now = new Date();
-    return now.toLocaleString(); // Format date and time as needed
+    return now.toLocaleString();
   };
 
-  // Effects
   useEffect(() => {
     if (employeeId) {
       fetchCartData(employeeId);
@@ -77,7 +85,6 @@ export default function Home() {
     }
   }, [cart, promotion]);
 
-  // Handlers
   const fetchCartData = async (employeeId: string) => {
     try {
       setLoading(true);
@@ -102,17 +109,24 @@ export default function Home() {
   };
 
   const handleCustomerSubmit = async () => {
-    if (customerName) {
+    if (customerPhone) {
       try {
         setCustomerLoading(true);
-        const response = await fetchCustomerByName(customerName);
+        const response = await fetchCustomerByPhone(customerPhone);
         if (response.code === 200) {
           setCustomer(response.result);
           setCustomerError(null);
           setShowCreateCustomerForm(false);
+          toast({
+            title: "Success",
+            description: "Customer found.",
+          });
         }
       } catch (err) {
-        handleCustomerError(err);
+        toast({
+          title: "Error",
+          description: "Customer not found. Please create a new customer.",
+        });
       } finally {
         setCustomerLoading(false);
       }
@@ -122,32 +136,51 @@ export default function Home() {
   const handleCreateCustomer = async () => {
     const { email, phone, address, customername } = newCustomerDetails;
     if (!email || !phone || !address || !customername) {
-      setCustomerError("Please provide all required details for the new customer.");
+      setCustomerError(
+        "Please provide all required details for the new customer."
+      );
+      toast({
+        title: "Error",
+        description: "Please fill all required fields.",
+      });
       return;
     }
 
     try {
-      const newCustomer = await createCustomer({ email, phone, address, customername });
+      const newCustomer = await createCustomer({
+        email,
+        phone,
+        address,
+        customername,
+      });
       setCustomer(newCustomer);
       setShowCreateCustomerForm(false);
       setCustomerError(null);
+      toast({
+        title: "Success",
+        description: "Customer created successfully.",
+      });
     } catch (err) {
       setCustomerError("Error creating customer.");
+      toast({
+        title: "Error",
+        description: "Failed to create customer.",
+      });
     }
   };
 
-  const handleCustomerError = (err: unknown) => {
-    if (axios.isAxiosError(err)) {
-      if (err.response?.status === 404) {
-        setCustomerError("Customer not found. Please create a new customer.");
-        setShowCreateCustomerForm(true);
-      } else {
-        setCustomerError("An error occurred while fetching the customer.");
-      }
-    } else {
-      setCustomerError("An unexpected error occurred.");
-    }
-  };
+  // const handleCustomerError = (err: unknown) => {
+  //   if (axios.isAxiosError(err)) {
+  //     if (err.response?.status === 404) {
+  //       setCustomerError("Customer not found. Please create a new customer.");
+  //       setShowCreateCustomerForm(true);
+  //     } else {
+  //       setCustomerError("An error occurred while fetching the customer.");
+  //     }
+  //   } else {
+  //     setCustomerError("An unexpected error occurred.");
+  //   }
+  // };
 
   const handleApiError = (err: unknown, defaultMsg: string) => {
     let errorMessage = defaultMsg;
@@ -157,12 +190,62 @@ export default function Home() {
     setError(errorMessage);
   };
 
-  const toggleCart = () => {
-    setIsCartOpen(prev => !prev);
+  const handleAddToCart = async (product: IProduct) => {
+    try {
+      await addToCart(employeeId, product.productId as any, 1);
+      toast({
+        title: "Success",
+        description: "Product added to cart successfully!",
+      });
+      await fetchCartData(employeeId);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Error adding product to cart:${
+          (error as Error).message || "Unknown error"
+        }`,
+      });
+    }
+  };
+  const handleIncreaseQuantity = async (itemId: string) => {
+    try {
+      await increaseItemQuantity(employeeId, itemId);
+      fetchCartData(employeeId);
+    } catch (error) {
+      handleApiError(error, "Error increasing quantity");
+    }
+  };
+
+  const handleDecreaseQuantity = async (itemId: string) => {
+    try {
+      await decreaseItemQuantity(employeeId, itemId);
+      fetchCartData(employeeId);
+    } catch (error) {
+      handleApiError(error, "Error decreasing quantity");
+    }
+  };
+
+  const handleRemoveItem = async (itemId: string) => {
+    try {
+      await removeFromCart(employeeId, itemId);
+      fetchCartData(employeeId);
+
+      toast({
+        title: "Success",
+        description: "Item removed from cart.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Error removing item: ${
+          (error as Error).message || "Unknown error"
+        }`,
+      });
+    }
   };
 
   const handleLogout = () => {
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     if (setEmployee) {
       setEmployee(null);
     }
@@ -170,47 +253,56 @@ export default function Home() {
   };
 
   return (
-    <main className="flex  flex-col ">
-      <div className="flex w-full gap-[24rem] items-center justify-between p-4  ">
+    <main className="flex flex-col">
+      <div className="flex w-full gap-[24rem] items-center justify-between p-4">
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
         <div className="flex gap-4 items-center">
-          <div className="font-sm leading-5 text-pnjBlue font-semibold">{employeeName}</div>
-
-
-
+          <div className="font-sm leading-5 text-pnjBlue font-semibold">
+            {employeeName}
+          </div>
           <DropdownMenu>
-            <DropdownMenuTrigger> <TiThMenu /></DropdownMenuTrigger>
+            <DropdownMenuTrigger>
+              {" "}
+              <TiThMenu />
+            </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex justify-between items-center">Xem báo cáo ngày </DropdownMenuItem>
-              <DropdownMenuItem className="flex justify-between items-center">Trang quản lí <MdOutlineDashboard /></DropdownMenuItem>
-              <DropdownMenuItem className="flex justify-between items-center" onClick={handleLogout}>Đăng xuất <IoLogInOutline className="w-4 h-4"/></DropdownMenuItem>
+              <DropdownMenuItem>Xem báo cáo ngày</DropdownMenuItem>
+              <DropdownMenuItem>
+                Trang quản lí <MdOutlineDashboard />
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                Đăng xuất <IoLogInOutline />
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
       </div>
-
-      <div className=" flex gap-5 p-4 ">
+      <div className="flex gap-5 p-4">
         <section className="w-full flex flex-col gap-10">
-
-
-          <Cart />
-
-
+          <StepCart
+            cart={cart}
+            couponCode={couponCode}
+            setCouponCode={setCouponCode}
+            handleCouponSubmit={() => {}}
+            promotion={promotion}
+            discountedTotal={discountedTotal}
+            goToNextStep={() => {}}
+            handleIncreaseQuantity={handleIncreaseQuantity}
+            handleDecreaseQuantity={handleDecreaseQuantity}
+            handleRemoveItem={handleRemoveItem}
+          />
           <ProductList
-            selectedCategory={selectedCategory}
+            selectedCategory={selectedCategory || null}
             searchTerm={searchTerm}
-
+            onAddToCart={handleAddToCart}
           />
         </section>
-
         <div>
           <StepCustomer
-            customerName={customerName}
-            setCustomerName={setCustomerName}
+            phone={customerPhone}
+            setPhone={setCustomerPhone}
             handleCustomerSubmit={handleCustomerSubmit}
             customerLoading={customerLoading}
             customerError={customerError}
@@ -232,8 +324,6 @@ export default function Home() {
             paymentMethodId={selectedPaymentMethod}
           />
         </div>
-
-
       </div>
     </main>
   );

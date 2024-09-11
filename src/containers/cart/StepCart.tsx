@@ -1,5 +1,8 @@
 import { formatPrice } from "@/utils/formatPrice";
 import { CartResponse, Promotion } from "@/types/cartTypes";
+import { FaPlus } from "react-icons/fa6";
+import { FaMinus } from "react-icons/fa6";
+import { MdOutlineRemoveShoppingCart } from "react-icons/md";
 
 interface StepCartProps {
     cart: CartResponse | null;
@@ -12,6 +15,7 @@ interface StepCartProps {
     handleIncreaseQuantity: (itemId: string) => void;
     handleDecreaseQuantity: (itemId: string) => void;
     handleRemoveItem: (itemId: string) => void;
+
 }
 
 const StepCart = ({
@@ -25,6 +29,7 @@ const StepCart = ({
     handleIncreaseQuantity,
     handleDecreaseQuantity,
     handleRemoveItem,
+
 }: StepCartProps) => {
     return (
         <div className="w-full flex justify-center">
@@ -36,9 +41,10 @@ const StepCart = ({
                                 <thead className="bg-gray-200 text-gray-600">
                                     <tr>
                                         <th className="py-2 px-3 border-b text-sm text-left w-1/6">Image</th>
-                                        <th className="py-2 px-3 border-b text-sm text-left w-1/2">Product Name</th>
+                                        <th className="py-2 px-3 border-b text-sm text-left w-1/3">Product Name</th>
                                         <th className="py-2 px-3 border-b text-sm text-left w-1/6">Quantity</th>
                                         <th className="py-2 px-3 border-b text-sm text-left w-1/6">Price</th>
+                                        <th className="py-2 px-3 border-b text-sm text-left w-1/6">Total Price</th> {/* New Total Price Column */}
                                         <th className="py-2 px-3 border-b text-sm text-left w-1/6">Actions</th>
                                     </tr>
                                 </thead>
@@ -55,35 +61,39 @@ const StepCart = ({
                                                     className="w-12 h-12 object-cover rounded"
                                                 />
                                             </td>
-                                            <td className="py-2 px-3 border-b text-sm text-left text-gray-900 w-1/2">
+                                            <td className="py-2 px-3 border-b text-sm text-left text-gray-900 w-1/3 overflow-hidden whitespace-nowrap text-ellipsis">
                                                 {item.productName || item.productId}
                                             </td>
+
                                             <td className="py-2 px-3 border-b text-sm text-left text-gray-700 w-1/6">
                                                 <div className="flex items-center">
                                                     <button
-                                                        className="px-2 py-1 text-white bg-blue-500 rounded"
+                                                       
                                                         onClick={() => handleDecreaseQuantity(item.itemId)}
                                                     >
-                                                        -
+                                                        <FaMinus />
                                                     </button>
-                                                    <span className="mx-2">{item.quantity}</span>
+                                                    <div className="py-2 px-3  text-sm text-left text-gray-900">{item.quantity}</div>
                                                     <button
-                                                        className="px-2 py-1 text-white bg-blue-500 rounded"
+                                                        
                                                         onClick={() => handleIncreaseQuantity(item.itemId)}
                                                     >
-                                                        +
+                                                        <FaPlus />
                                                     </button>
                                                 </div>
                                             </td>
                                             <td className="py-2 px-3 border-b text-sm text-left text-gray-900 w-1/6">
                                                 {formatPrice(item.price)}
                                             </td>
-                                            <td className="py-2 px-3 border-b text-sm text-left w-1/6">
+                                            <td className="py-2 px-3 border-b text-sm text-left text-gray-900 w-1/6">
+                                                {formatPrice(item.price * item.quantity)} 
+                                            </td>
+                                            <td className="py-2 px-3 border-b text-sm  ">
                                                 <button
-                                                    className="px-2 py-1 text-white bg-red-500 rounded"
+                                                  className="flex justify-center items-center"
                                                     onClick={() => handleRemoveItem(item.itemId)}
                                                 >
-                                                    Remove
+                                                    <MdOutlineRemoveShoppingCart />
                                                 </button>
                                             </td>
                                         </tr>

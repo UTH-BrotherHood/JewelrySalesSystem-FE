@@ -2,8 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Customer } from "@/types/customerTypes";
 
 interface StepCustomerProps {
-    customerName: string;
-    setCustomerName: (value: string) => void;
+    phone: string;
+    setPhone: (value: string) => void;
     handleCustomerSubmit: () => void;
     customerLoading: boolean;
     customerError: string | null;
@@ -15,8 +15,8 @@ interface StepCustomerProps {
 }
 
 const StepCustomer = ({
-    customerName,
-    setCustomerName,
+    phone,
+    setPhone,
     handleCustomerSubmit,
     customerLoading,
     customerError,
@@ -36,8 +36,8 @@ const StepCustomer = ({
                 <Input
 
                     placeholder="Search products..."
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                   
                     endAdornment={
                         <svg onClick={handleCustomerSubmit} width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
