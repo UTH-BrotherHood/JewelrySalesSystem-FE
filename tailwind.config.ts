@@ -1,3 +1,4 @@
+import { Open_Sans } from "next/font/google";
 import type { Config } from "tailwindcss";
 
 const config = {
@@ -18,7 +19,21 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        Open_Sans: ["Open Sans", "sans-serif"],
+        roboto: ["Roboto", "sans-serif"],
+      },
       colors: {
+        brownJWL1: "#5B3724",
+        brownJWL2: "#755543",
+        greyJWL :"#ADA399",
+        creamJWL: "#DBD5CB",
+        whiteJWL: "#FFF7ED",
+
+        pnjBlue: "#003468",
+        pnjYellow: "#c48c46",
+        pnjGrey: "#5A5A5A",
+        
         buttonBlue: "#3858D6",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -68,10 +83,15 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        marquee: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        marquee: "marquee 10s linear infinite",
       },
     },
   },
