@@ -9,7 +9,6 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-
   const isTokenExpired = (token: string) => {
     try {
       const decodedToken = jwt.decode(token) as { exp?: number };
@@ -55,7 +54,7 @@ export function middleware(request: NextRequest) {
     if (isRoleAdmin(token)) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     } else if (isRoleEmployee(token)) {
-      return NextResponse.redirect(new URL("/", request.url)); 
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
@@ -63,5 +62,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/sign-in", "/dashboard"],
+  matcher: ["/sign-in", "/dashboard", "/"],
 };

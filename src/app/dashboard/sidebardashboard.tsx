@@ -1,8 +1,14 @@
-'use client'
+"use client";
 import React, { useState } from "react";
 import {
-  IconArrowLeft, IconDiamondFilled, IconPackage, IconStack2,
-  IconTicket, IconUsers, IconUsersGroup, IconSettings
+  IconArrowLeft,
+  IconDiamondFilled,
+  IconPackage,
+  IconStack2,
+  IconTicket,
+  IconUsers,
+  IconUsersGroup,
+  IconSettings,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -10,9 +16,14 @@ import Image from "next/image";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import avt from "@/assets/image/avt.jpg";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
-  AlertDialogTitle, AlertDialogTrigger
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
@@ -25,18 +36,46 @@ export default function SidebarDashBoard() {
   const [open, setOpen] = useState(false);
 
   const links = [
-    { label: "Dashboard", href: "/dashboard", icon: <IconDiamondFilled className="h-5 w-5" /> },
-    { label: "Products", href: "/dashboard/products", icon: <IconPackage className="h-5 w-5" /> },
-    { label: "Categories", href: "/dashboard/categories", icon: <IconStack2 className="h-5 w-5" /> },
-    { label: "Orders", href: "/dashboard/orders", icon: <IconTicket className="h-5 w-5" /> },
-    { label: "Employees", href: "/dashboard/employees", icon: <IconUsers className="h-5 w-5" /> },
-    { label: "Customers", href: "/dashboard/customers", icon: <IconUsersGroup className="h-5 w-5" /> },
-    { label: "Settings", href: "#", icon: <IconSettings className="h-5 w-5" /> }
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: <IconDiamondFilled className="h-5 w-5" />,
+    },
+    {
+      label: "Products",
+      href: "/dashboard/products",
+      icon: <IconPackage className="h-5 w-5" />,
+    },
+    {
+      label: "Categories",
+      href: "/dashboard/categories",
+      icon: <IconStack2 className="h-5 w-5" />,
+    },
+    {
+      label: "Customers",
+      href: "/dashboard/customers",
+      icon: <IconUsersGroup className="h-5 w-5" />,
+    },
+    {
+      label: "Employees",
+      href: "/dashboard/employees",
+      icon: <IconUsers className="h-5 w-5" />,
+    },
+    {
+      label: "Orders",
+      href: "/dashboard/orders",
+      icon: <IconTicket className="h-5 w-5" />,
+    },
+    {
+      label: "Settings",
+      href: "/dashboard/settings",
+      icon: <IconSettings className="h-5 w-5" />,
+    },
   ];
 
   const handleLogout = () => {
     http.clearToken();
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     router.push("/sign-in");
     toast({
       title: "Logout",
@@ -117,7 +156,7 @@ const SidebarFooter = () => (
           height={50}
           alt="Admin Avatar"
         />
-      )
+      ),
     }}
   />
 );

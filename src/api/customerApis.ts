@@ -3,10 +3,10 @@ import http from "@/utils/http";
 import Cookies from "js-cookie";
 
 
-// Fetch customer by name
 export const fetchCustomerByPhone = async (
   phone: string
 ): Promise<CustomerRespone > => {
+
   try {
     const token = Cookies.get("token");
     if (token) {
@@ -25,16 +25,13 @@ export const fetchCustomerByPhone = async (
 };
 
 // Create a new customer
-export const createCustomer = async (customerData: Partial<Customer>): Promise<Customer> => {
-  try {
-    const token = Cookies.get("token");
-    if (token) {
-      http.setToken(token);
-    }
-    const response = await http.post<{ result: Customer }>("/customers", customerData);
-    return response.data.result;
-  } catch (error) {
-    console.error("Error creating customer:", error);
-    throw error;
-  }
+export const createCustomer = async (data: {
+  email: string;
+  customername: string;
+  password: string;
+  address: string;
+  phone: string;
+}) => {
+  const response = await http.post("/customers", data);
+  return response.data;
 };

@@ -1,3 +1,15 @@
+"use client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -9,99 +21,137 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import http from "@/utils/http";
 import { IconEdit, IconEye, IconPlus, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+interface Category {
+  categoryId: string;
+  categoryName: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-const invoices = [
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-];
+interface CategoryResponse {
+  code: number;
+  message: string;
+  result: {
+    content: Category[];
+  };
+}
 
 export default function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const token = Cookies.get("token"); // Get token from cookies
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await http.get<CategoryResponse>("/categories", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Add token to request headers
+          },
+        });
+        if (response.data && Array.isArray(response.data.result.content)) {
+          setCategories(response.data.result.content);
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh mục:", error);
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
+  }, [token]);
+
+  const deleteCategory = async (categoryId: string) => {
+    try {
+      await http.delete(`/categories/${categoryId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add token to delete request
+        },
+      });
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.categoryId !== categoryId)
+      );
+    } catch (error) {
+      console.error("Lỗi khi xoá danh mục:", error);
+    }
+  };
+
   return (
-    <div className=" w-full">
+    <div className="w-full">
       <h1 className="text-2xl">Categories</h1>
       <div className="flex justify-end mb-3">
         <Button className="ml-auto bg-buttonBlue">
           <IconPlus />
-          Add Category
+          <Link href="/dashboard/categories/create">Add Category</Link>
         </Button>
       </div>
       <Table className="bg-white rounded-md shadow-md">
         <TableCaption>A list of categories.</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[45%]">CategoryName</TableHead>
-            <TableHead className="">Description</TableHead>
+            <TableHead className="w-[45%]">Category Name</TableHead>
+            <TableHead>Description</TableHead>
             <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
-              <TableCell className="font-medium">Product Name 123</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell className="flex text-xs justify-center items-center gap-2">
-                <Link href={"#"}>
-                  <IconEye className="w-4" />
-                </Link>
-                <Link href={"#"}>
-                  <IconEdit className="w-4" />
-                </Link>
-                <Link href={"#"}>
-                  <IconTrash className="w-4" />
-                </Link>
+          {categories.length > 0 ? (
+            categories.map((category) => (
+              <TableRow key={category.categoryId}>
+                <TableCell className="font-medium">
+                  {category.categoryName}
+                </TableCell>
+                <TableCell>{category.description}</TableCell>
+                <TableCell className="flex text-xs justify-center items-center gap-2">
+                  <Link
+                    href={`/dashboard/categories/${category.categoryId}/edit`}
+                  >
+                    <IconEdit className="w-4" />
+                  </Link>
+                  <AlertDialog>
+                    <AlertDialogTrigger className="flex items-center gap-2 text-red-500 py-2">
+                      <IconTrash className="h-5 w-5" />
+                      <span className="hidden group-hover:inline-block transition-all duration-300">
+                        Delete
+                      </span>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you sure you want to delete this category?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteCategory(category.categoryId)}
+                        >
+                          Continue
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center">
+                Không có danh mục nào.
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
-        {/* tesst */}
-        {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter> */}
       </Table>
     </div>
   );

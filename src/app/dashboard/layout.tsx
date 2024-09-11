@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <>
-      <div className="rounded-md flex bg-[#F4F7FE] dark:bg-neutral-800 w-full h-full flex-1  mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+      <div className="h-screen rounded-md flex bg-[#F4F7FE] dark:bg-neutral-800 w-full h-full flex-1  mx-auto border border-neutral-200 dark:border-neutral-700 overflow-hidden">
         <SidebarDashBoard></SidebarDashBoard>
         <div className="ml-20 w-full px-10 py-14 overflow-y-auto">
           {children}

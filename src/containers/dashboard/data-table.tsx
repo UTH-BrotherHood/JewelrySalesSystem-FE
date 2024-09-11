@@ -3,17 +3,17 @@
 import * as React from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
+  useReactTable,
+  getPaginationRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  ColumnFiltersState,
+  VisibilityState,
+  SortingState,
 } from "@tanstack/react-table";
 
 import { DataTablePagination } from "./data-table-pagination";
@@ -64,6 +64,11 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    initialState: {
+      pagination: {
+        pageSize: 5, // Đặt giá trị mặc định là 5
+      },
+    },
   });
 
   return (
