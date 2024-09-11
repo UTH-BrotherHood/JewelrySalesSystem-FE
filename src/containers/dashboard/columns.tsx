@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { categoryNames } from "./data/data";
@@ -8,6 +9,40 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import Image from "next/image";
+
+// Thêm component Modal
+const ImageModal = ({
+  src,
+  alt,
+  onClose,
+}: {
+  src: string;
+  alt: string;
+  onClose: () => void;
+}) => (
+  <div
+    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    onClick={onClose}
+  >
+    <div className="relative">
+      <Image
+        src={src}
+        alt={alt}
+        width={500}
+        height={500}
+        objectFit="contain"
+        className="max-w-full max-h-[80vh]"
+      />
+      <button
+        onClick={onClose}
+        className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full p-2"
+      >
+        X
+      </button>
+    </div>
+  </div>
+);
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -19,8 +54,6 @@ export const columns: ColumnDef<Product>[] = [
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        // eslint-disable-next-line jsx-a11y/aria-props
-        // aria-categoryName="Select all"
         className="translate-y-[2px]"
       />
     ),
@@ -28,8 +61,6 @@ export const columns: ColumnDef<Product>[] = [
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        // eslint-disable-next-line jsx-a11y/aria-props
-        // aria-categoryName="Select row"
         className="translate-y-[2px]"
       />
     ),
@@ -44,6 +75,39 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => <div className="w-[200px]">{row.getValue("name")}</div>,
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    accessorKey: "imageUrl",
+    header: "Image",
+    cell: ({ row }) => {
+      const imageUrl: string = row.getValue("imageUrl");
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [isModalOpen, setIsModalOpen] = useState(false);
+
+      return (
+        <>
+          <div
+            className="w-10 h-10 relative cursor-pointer"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Image
+              src={imageUrl}
+              alt={row.getValue("name")}
+              layout="fill"
+              objectFit="cover"
+              className="rounded-full"
+            />
+          </div>
+          {isModalOpen && (
+            <ImageModal
+              src={imageUrl}
+              alt={row.getValue("name")}
+              onClose={() => setIsModalOpen(false)}
+            />
+          )}
+        </>
+      );
+    },
   },
   {
     accessorKey: "description",
