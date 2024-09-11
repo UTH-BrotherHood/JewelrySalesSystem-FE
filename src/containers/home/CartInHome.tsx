@@ -6,16 +6,18 @@ import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import StepCart from "../cart/StepCart";
 
-const Cart = () => {
+interface CartProps {
+  cart: CartResponse | null;
+}
+
+const Cart = ({ cart: initialCart }: CartProps) => {
   const employeeId = useAppSelector((state: any) => state.employee.employeeId);
-  const [cart, setCart] = useState<CartResponse | null>(null);
+  const [cart, setCart] = useState<CartResponse | null>(initialCart);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState<string>("");
   const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [discountedTotal, setDiscountedTotal] = useState<number>(0);
-
- 
 
   useEffect(() => {
     if (employeeId) {
@@ -80,7 +82,7 @@ const Cart = () => {
   return (
     <div>
       <StepCart
-        cart={cart}
+        cart={cart || null} 
         couponCode={couponCode}
         setCouponCode={setCouponCode}
         handleCouponSubmit={() => { }}

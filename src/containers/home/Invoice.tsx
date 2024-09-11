@@ -1,31 +1,34 @@
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { useState, useEffect } from "react";
 import { CartResponse, Promotion } from "@/types/cartTypes";
 import { Customer } from "@/types/customerTypes";
 import { formatPrice } from "@/utils/formatPrice";
-import { useState } from "react";
-import { fetchPromotion } from "@/api/cartApis";
+import { fetchPromotion, fetchPaymentMethods } from "@/api/cartApis";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import html2pdf from "html2pdf.js";
+import { createSalesOrder } from "@/api/saleOrderApi";
+import { useAppSelector } from "@/lib/hooks";
 
 const Invoice = ({
     cart,
     customer,
     promotion,
     employeeId,
-    employeeName, // Add employee name
+    employeeName,
     customerId,
     cartId,
     paymentMethodId,
-    purchaseTime,  // Add purchase time
+    purchaseTime,
 }: {
     cart: CartResponse | null;
     customer: Customer | null;
     promotion: Promotion | null;
     employeeId: string;
-    employeeName: string;  // Add employeeName type
+    employeeName: string;
     customerId: string;
     cartId: string;
     paymentMethodId: string;
-    purchaseTime: string;  // Add purchase time type
+    purchaseTime: string;
 }) => {
     if (!cart || !customer) return null;
 
@@ -36,23 +39,113 @@ const Invoice = ({
         returnPolicy: "Chính sách đổi trả: Đổi trả trong vòng 7 ngày với sản phẩm còn nguyên tem và hóa đơn.",
     };
 
+    const { toast } = useToast();
+
     const [otherCharges, setOtherCharges] = useState<number>(0);
     const [customerPayment, setCustomerPayment] = useState<number>(0);
     const [couponCode, setCouponCode] = useState<string>("");
     const [appliedPromotion, setAppliedPromotion] = useState<Promotion | null>(promotion);
     const [error, setError] = useState<string | null>(null);
+    const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>(paymentMethodId);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // Calculate totals
+    useEffect(() => {
+        const loadPaymentMethods = async () => {
+            try {
+                const response = await fetchPaymentMethods();
+                setPaymentMethods(response);
+            } catch (error) {
+                toast({
+                    title: "Error",
+                    description: "Failed to fetch payment methods.",
+                });
+            }
+        };
+
+        loadPaymentMethods();
+    }, [toast]);
+
+    const createSaleOrder = async () => {
+        setIsLoading(true); // Start loading
+
+        // Check for missing fields and display specific error messages
+        if (!customer?.customerId) {
+            toast({
+                title: "Error",
+                description: "Customer ID is missing. Please select a customer.",
+            });
+            setIsLoading(false); // Stop loading
+            return;
+        }
+
+        if (!employeeId) {
+            toast({
+                title: "Error",
+                description: "Employee ID is missing. Please ensure an employee is logged in.",
+            });
+            setIsLoading(false); // Stop loading
+            return;
+        }
+
+        if (!cart?.cartId) {
+            toast({
+                title: "Error",
+                description: "Cart ID is missing. Please add items to the cart.",
+            });
+            setIsLoading(false); // Stop loading
+            return;
+        }
+
+        if (!selectedPaymentMethod) {
+            toast({
+                title: "Error",
+                description: "Payment method is missing. Please select a payment method.",
+            });
+            setIsLoading(false); // Stop loading
+            return;
+        }
+
+        try {
+            // Call createSalesOrder with required parameters
+            const response = await createSalesOrder(
+                customer.customerId,
+                employeeId,
+                cart.cartId,
+                appliedPromotion ? appliedPromotion.promotionCode : '', // Use empty string if no promotion
+                selectedPaymentMethod
+            );
+
+            toast({
+                title: "Success",
+                description: "Order created successfully.",
+            });
+
+            // Optionally, handle the response (e.g., redirect, clear cart)
+            console.log("Sales order created successfully:", response);
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Failed to create the order. Please try again.",
+            });
+            console.error("Error creating sales order:", error);
+        }
+
+        setIsLoading(false); // Stop loading
+    };
+
     const totalAmount = cart.totalAmount;
     const discount = appliedPromotion ? totalAmount * (appliedPromotion.discountPercentage / 100) : 0;
     const discountedTotal = totalAmount - discount;
     const amountDue = discountedTotal + otherCharges;
     const changeDue = customerPayment - amountDue;
 
-    // Handle coupon code submission
     const handleCouponSubmit = async () => {
         if (!couponCode) {
-            setError("Please enter a coupon code.");
+            toast({
+                title: "Error",
+                description: "Please enter a coupon code.",
+            });
             return;
         }
 
@@ -64,168 +157,184 @@ const Invoice = ({
 
             if (currentDate >= startDate && currentDate <= endDate) {
                 setAppliedPromotion(promoData);
-                setError(null);
+                toast({
+                    title: "Success",
+                    description: "Coupon applied successfully!",
+                });
             } else {
-                setError(`This promotion is not valid. Valid from ${promoData.startDate} to ${promoData.endDate}`);
+                toast({
+                    title: "Error",
+                    description: `This promotion is not valid. Valid from ${promoData.startDate} to ${promoData.endDate}.`,
+                });
                 setAppliedPromotion(null);
             }
         } catch (err) {
-            setError("Invalid coupon code or promotion not found.");
+            toast({
+                title: "Error",
+                description: "Invalid coupon code or promotion not found.",
+            });
             setAppliedPromotion(null);
         }
     };
 
-    const generatePdf = async () => {
+    const generatePdf = () => {
         const invoiceElement = document.getElementById("invoice");
 
         if (invoiceElement) {
-            const canvas = await html2canvas(invoiceElement);
-            const imgData = canvas.toDataURL("image/png");
+            const options = {
+                margin: 1,
+                filename: `invoice-${customer.customername}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-            const pdf = new jsPDF("p", "mm", "a4");
-            const imgWidth = 210;
-            const pageHeight = 297;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-
-            pdf.save(`invoice-${customer.customername}.pdf`);
+            html2pdf().from(invoiceElement).set(options).save().then(() => {
+                toast({
+                    title: "Success",
+                    description: "PDF generated and downloaded successfully!",
+                });
+            }).catch(() => {
+                toast({
+                    title: "Error",
+                    description: "Failed to generate PDF. Please try again.",
+                });
+            });
+        } else {
+            toast({
+                title: "Error",
+                description: "Invoice element not found.",
+            });
         }
     };
 
     return (
         <div>
-            <div id="invoice" className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-6  max-h-[600px] overflow-y-auto">
-                {/* Store Info */}
-                <div className="mb-6 text-center">
-                    <h1 className="text-base font-bold text-indigo-700">{storeInfo.name}</h1>
-                    <p className="text-sm">{storeInfo.address}</p>
-                    <p className="text-sm">{storeInfo.phone}</p>
-                </div>
-
-                <h2 className="text-base font-bold mb-4 text-gray-800">Hóa đơn</h2>
-
-                <div className="mb-4">
-                    <h3 className="text-base font-semibold text-gray-700">Thông tin khách hàng</h3>
-                    <p className="text-sm">Tên: {customer.customername}</p>
-                    <p className="text-sm">Email: {customer.email}</p>
-                    <p className="text-sm">Số điện thoại: {customer.phone}</p>
-                    <p className="text-sm">Địa chỉ: {customer.address}</p>
-                </div>
-
-                <div className="mb-4">
-                    <h3 className="text-base font-semibold text-gray-700">Sản phẩm trong giỏ hàng</h3>
-                    {cart.items.map((item) => (
-                        <div key={item.itemId} className="flex justify-between py-2 border-b">
-                            <span className="text-sm">{item.productName || item.productId}</span>
-                            <span className="text-sm">{item.quantity} x {formatPrice(item.price)}</span>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mb-4">
-                    <h3 className="text-base font-semibold text-gray-700">Thời gian mua hàng</h3>
-                    <p className="text-sm">{purchaseTime}</p>
-                </div>
-
-                <div className="mb-4">
-                    <h3 className="text-base font-semibold text-gray-700">Nhân viên phụ trách</h3>
-                    <p className="text-sm">{employeeName}</p>
-                </div>
-
-                <div className="mt-4 bg-gray-50 p-4 rounded-lg shadow-md">
-                    <div className="flex justify-between mb-2">
-                        <span className="text-sm font-semibold text-gray-800">Tổng tiền hàng:</span>
-                        <span className="text-sm text-gray-900">{formatPrice(totalAmount)}</span>
-                    </div>
-
-                    {appliedPromotion && (
-                        <div className="flex justify-between mb-2">
-                            <span className="text-sm font-semibold text-gray-800">Giảm giá ({appliedPromotion.discountPercentage}%):</span>
-                            <span className="text-sm text-gray-900">{formatPrice(discount)}</span>
-                        </div>
-                    )}
-
-                    <div className="flex justify-between mb-2">
-                        <span className="text-sm font-semibold text-gray-800">Thu khác:</span>
-                        <input
-                            type="number"
-                            value={otherCharges}
-                            onChange={(e) => setOtherCharges(Number(e.target.value))}
-                            className="w-20 text-right"
+            {isLoading && (
+                <div className="absolute inset-0 flex justify-center items-center bg-gray-200 bg-opacity-50 z-10">
+                    <div className="relative flex justify-center items-center">
+                        <div className="absolute animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-purple-500"></div>
+                        <img
+                            src="https://www.svgrepo.com/show/509001/avatar-thinking-9.svg"
+                            className="rounded-full h-28 w-28"
+                            alt="Loading"
                         />
                     </div>
+                </div>
+            )}
+            <div id="invoice" className={`bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-6 ${isLoading ? 'opacity-50' : 'opacity-100'}`}>
+                        <div id="invoice" className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-6 o">
+                            {/* Store Info */}
+                            <div className="mb-6 text-center">
+                                <h1 className="text-base font-bold text-indigo-700">{storeInfo.name}</h1>
+                                <p className="text-sm">{storeInfo.address}</p>
+                                <p className="text-sm">{storeInfo.phone}</p>
+                            </div>
 
-                    <div className="flex justify-between mb-2">
-                        <span className="text-base font-semibold text-gray-800">Khách cần trả:</span>
-                        <span className="text-base text-gray-900">{formatPrice(amountDue)}</span>
-                    </div>
+                            <h2 className="text-base font-bold mb-4 text-gray-800">Hóa đơn</h2>
 
-                    <div className="flex justify-between mb-2">
-                        <span className="text-sm font-semibold text-gray-800">Khách thanh toán:</span>
-                        <input
-                            type="number"
-                            value={customerPayment}
-                            onChange={(e) => setCustomerPayment(Number(e.target.value))}
-                            className="w-20 text-right"
-                        />
-                    </div>
+                            <div className="mb-4">
+                                <h3 className="text-base font-semibold text-gray-700">Thông tin khách hàng</h3>
+                                <p className="text-sm">Tên: {customer.customername}</p>
+                                <p className="text-sm">Email: {customer.email}</p>
+                                <p className="text-sm">Số điện thoại: {customer.phone}</p>
+                                <p className="text-sm">Địa chỉ: {customer.address}</p>
+                            </div>
 
-                    <div className="flex justify-between mt-4">
-                        <span className="text-base font-semibold text-gray-800">Tiền thừa trả khách:</span>
-                        <span className="text-base text-gray-900">{formatPrice(changeDue >= 0 ? changeDue : 0)}</span>
+                            <div className="mb-4">
+                                <h3 className="text-base font-semibold text-gray-700">Sản phẩm trong giỏ hàng</h3>
+                                {cart.items.map((item) => (
+                                    <div key={item.itemId} className="flex justify-between py-2 border-b">
+                                        <span className="text-sm">{item.productName || item.productId}</span>
+                                        <span className="text-sm">{item.quantity} x {formatPrice(item.price)}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Payment Methods */}
+                            <div className="mb-4">
+                                <h3 className="text-base font-semibold text-gray-700">Phương thức thanh toán</h3>
+                                <select
+                                    value={selectedPaymentMethod}
+                                    onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                                    className="w-full p-2 border"
+                                >
+                                    {paymentMethods?.map((method) => (
+                                        <option key={method.paymentMethodId} value={method.paymentMethodId}>
+                                            {method.paymentMethodName} - {method.details}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="text-base font-semibold text-gray-700">Thời gian mua hàng</h3>
+                                <p className="text-sm">{purchaseTime}</p>
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="text-base font-semibold text-gray-700">Nhân viên phụ trách</h3>
+                                <p className="text-sm">{employeeName}</p>
+                            </div>
+
+                            <div className="mt-4 bg-gray-50 p-4 rounded-lg shadow-md">
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-sm font-semibold text-gray-800">Tổng tiền hàng:</span>
+                                    <span className="text-sm text-gray-900">{formatPrice(totalAmount)}</span>
+                                </div>
+
+                                {appliedPromotion && (
+                                    <div className="flex justify-between mb-2">
+                                        <span className="text-sm font-semibold text-gray-800">Giảm giá ({appliedPromotion.discountPercentage}%):</span>
+                                        <span className="text-sm text-gray-900">{formatPrice(discount)}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-sm font-semibold text-gray-800">Thu khác:</span>
+                                    <input
+                                        type="number"
+                                        value={otherCharges}
+                                        onChange={(e) => setOtherCharges(Number(e.target.value))}
+                                        className="w-20 text-right"
+                                    />
+                                </div>
+
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-base font-semibold text-gray-800">Khách cần trả:</span>
+                                    <span className="text-base text-gray-900">{formatPrice(amountDue)}</span>
+                                </div>
+
+                                <div className="flex justify-between mb-2">
+                                    <span className="text-sm font-semibold text-gray-800">Khách trả:</span>
+                                    <input
+                                        type="number"
+                                        value={customerPayment}
+                                        onChange={(e) => setCustomerPayment(Number(e.target.value))}
+                                        className="w-20 text-right"
+                                    />
+                                </div>
+
+                                {customerPayment > 0 && (
+                                    <div className="flex justify-between">
+                                        <span className="text-sm font-semibold text-gray-800">Tiền thối lại:</span>
+                                        <span className="text-sm text-gray-900">{formatPrice(changeDue)}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        {/* The rest of your invoice content */}
+                    <div className="mt-4 flex justify-end space-x-4">
+                        <Button onClick={createSaleOrder} className="bg-indigo-600 text-white">
+                            Tạo đơn hàng
+                        </Button>
+                        <Button onClick={generatePdf} className="bg-indigo-600 text-white">
+                            Tải hóa đơn PDF
+                        </Button>
                     </div>
                 </div>
-
-                {/* Coupon Code Section */}
-                <div className="mt-4">
-                    <input
-                        type="text"
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        placeholder="Enter coupon code"
-                        className="border p-2 mb-2 w-full text-sm"
-                    />
-                    <button
-                        onClick={handleCouponSubmit}
-                        className="bg-blue-500 text-white px-4 py-2 rounded text-sm"
-                    >
-                        Apply Coupon
-                    </button>
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
-                </div>
-
-                {/* Return Policy */}
-                <div className="mt-6 border-t pt-4">
-                    <p className="text-xs text-gray-600">{storeInfo.returnPolicy}</p>
-                </div>
-            </div>
-
-            <button
-                onClick={generatePdf}
-                className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm"
-            >
-                Tải hóa đơn PDF
-            </button>
-
-            {/* Hidden fields for employee_id, customer_id, cart_id, payment_method_id */}
-            <input type="hidden" value={employeeId} />
-            <input type="hidden" value={customerId} />
-            <input type="hidden" value={cartId} />
-            <input type="hidden" value={paymentMethodId} />
+        
         </div>
-
-
     );
 };
 
