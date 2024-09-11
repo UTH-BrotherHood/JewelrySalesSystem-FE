@@ -171,7 +171,7 @@ export default function Home() {
 
   return (
     <main className="flex  flex-col ">
-      <div className="flex w-full gap-[24rem] items-center justify-between p-4  bg-blue-50">
+      <div className="flex w-full gap-[24rem] items-center justify-between p-4  ">
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
         <div className="flex gap-4 items-center">

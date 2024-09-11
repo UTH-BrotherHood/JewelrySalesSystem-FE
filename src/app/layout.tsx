@@ -4,6 +4,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import TopLoader from "@/components/topLoader";
+import StoreProvider from "./StoreProvider";
+import { EmployeeProvider } from "@/components/context-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 

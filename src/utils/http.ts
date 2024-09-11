@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+
 class Http {
   instance: AxiosInstance;
 
@@ -29,9 +30,18 @@ class Http {
     return this.instance.post<T>(url, data, config);
   }
 
-  //chua add cac method con lai
-}
+  put<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return this.instance.put<T>(url, data, config);
+  }
 
+  patch<T>(url: string, data?: any, config?: AxiosRequestConfig) {
+    return this.instance.patch<T>(url, data, config);
+  }
+
+  delete<T>(url: string, config?: AxiosRequestConfig) {
+    return this.instance.delete<T>(url, config);
+  }
+}
 
 type EntityErrorPayload = {
   message: string;
@@ -45,7 +55,7 @@ export class HttpError extends Error {
   status: number;
   payload: {
     message: string;
-    [key: string]: any; // Allows additional properties if needed
+    [key: string]: any; 
   };
 
   constructor({

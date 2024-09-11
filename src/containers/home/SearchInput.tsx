@@ -20,9 +20,9 @@ const SearchInput = ({ searchTerm, setSearchTerm }: SearchInputProps) => {
     };
 
     return (
-        <div className="flex gap-2 w-full text-pnjGrey">
+        <div className="flex gap-2 w-full">
             <Input
-                className='bg-white m-w-3xl mx-auto'
+                className='m-w-3xl h-11 mx-auto'
                 placeholder="Search products..."
                 value={localSearchTerm}
                 onChange={(e) => setLocalSearchTerm(e.target.value)}

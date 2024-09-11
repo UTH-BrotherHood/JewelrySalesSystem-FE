@@ -1,16 +1,10 @@
 "use client";
-import { fetchCart, fetchPromotion } from "@/api/cartApis";
-import { createCustomer, fetchCustomerByName } from "@/api/customerApis";
+import { fetchCart, addToCart, removeFromCart, increaseItemQuantity, decreaseItemQuantity } from "@/api/cartApis";
 import { useAppSelector } from "@/lib/hooks";
 import { CartResponse, Promotion } from "@/types/cartTypes";
-import { Customer } from "@/types/customerTypes";
-import { formatPrice } from "@/utils/formatPrice";
-import axios, { AxiosError } from "axios";
-import { useState, useEffect } from "react";
-import StepPayment from "./Invoice";
+import { AxiosError } from "axios";
+import { useEffect, useState } from "react";
 import StepCart from "../cart/StepCart";
-import StepCustomer from "../cart/StepCustomer";
-import Invoice from "./Invoice";
 
 const Cart = () => {
   const employeeId = useAppSelector((state: any) => state.employee.employeeId);
@@ -20,84 +14,8 @@ const Cart = () => {
   const [couponCode, setCouponCode] = useState<string>("");
   const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [discountedTotal, setDiscountedTotal] = useState<number>(0);
-  const [currentStep, setCurrentStep] = useState<number>(1);
 
-  const [customerLoading, setCustomerLoading] = useState<boolean>(false);
-  const [customerName, setCustomerName] = useState<string>("");
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [customerError, setCustomerError] = useState<string | null>(null);
-  const [showCreateCustomerForm, setShowCreateCustomerForm] = useState<boolean>(false);
-  const [newCustomerDetails, setNewCustomerDetails] = useState({
-    email: "",
-    phone: "",
-    address: "",
-    customername: "",
-  });
-
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("");
-
-  const selectPaymentMethod = (method: string) => {
-    setSelectedPaymentMethod(method);
-  };
-
-
-  const handleCustomerSubmit = async () => {
-    if (customerName) {
-      try {
-        setCustomerLoading(true);
-        const response = await fetchCustomerByName(customerName);
-
-        if ( response.code === 200) {
-        
-        
-          setCustomer(response.result);
-          setCustomerError(null); 
-          setShowCreateCustomerForm(false); 
-        }
-      } catch (err) {
-        if (axios.isAxiosError(err)) {
-          if (err.response?.status === 404) {
-         
-            setCustomerError("Customer not found. Please create a new customer.");
-            setShowCreateCustomerForm(true);
-          } else {
-        
-            setCustomerError("An error occurred while fetching the customer.");
-          }
-        } else {
-        
-          setCustomerError("An unexpected error occurred.");
-        }
-      } finally {
-        setCustomerLoading(false);
-      }
-    }
-  };
-
-  const handleCreateCustomer = async () => {
-    const { email, phone, address, customername } = newCustomerDetails;
-    if (!email || !phone || !address || !customername) {
-      setCustomerError("Please provide all required details for the new customer.");
-      return;
-    }
-
-    try {
-      const newCustomer = await createCustomer({
-        email,
-        phone,
-        address,
-        customername,
-      });
-      setCustomer(newCustomer); 
-      setShowCreateCustomerForm(false); 
-      setCustomerError(null);
-    } catch (err) {
-      setCustomerError("Error creating customer.");
-    }
-  };
-
-
-
+ 
 
   useEffect(() => {
     if (employeeId) {
@@ -124,7 +42,32 @@ const Cart = () => {
     }
   };
 
+  const handleIncreaseQuantity = async (itemId: string) => {
+    try {
+      await increaseItemQuantity(employeeId, itemId);
+      fetchCartData(employeeId);
+    } catch (error) {
+      handleApiError(error, "Error increasing quantity");
+    }
+  };
 
+  const handleDecreaseQuantity = async (itemId: string) => {
+    try {
+      await decreaseItemQuantity(employeeId, itemId);
+      fetchCartData(employeeId);
+    } catch (error) {
+      handleApiError(error, "Error decreasing quantity");
+    }
+  };
+
+  const handleRemoveItem = async (itemId: string) => {
+    try {
+      await removeFromCart(employeeId, itemId);
+      fetchCartData(employeeId);
+    } catch (error) {
+      handleApiError(error, "Error removing item");
+    }
+  };
 
   const handleApiError = (err: unknown, defaultMsg: string) => {
     let errorMessage = defaultMsg;
@@ -134,29 +77,20 @@ const Cart = () => {
     setError(errorMessage);
   };
 
-
-
-
-
-
-  const goToNextStep = () => setCurrentStep((prevStep) => prevStep + 1);
-  const goToPreviousStep = () => setCurrentStep((prevStep) => prevStep - 1);
-
-
   return (
     <div>
-     
-        <StepCart
-          cart={cart}
-          couponCode={couponCode}
-          setCouponCode={setCouponCode}
-         
-          promotion={promotion}
-          discountedTotal={discountedTotal}
-          goToNextStep={goToNextStep}
-        />
-
-   
+      <StepCart
+        cart={cart}
+        couponCode={couponCode}
+        setCouponCode={setCouponCode}
+        handleCouponSubmit={() => { }}
+        promotion={promotion}
+        discountedTotal={discountedTotal}
+        goToNextStep={() => { }}
+        handleIncreaseQuantity={handleIncreaseQuantity}
+        handleDecreaseQuantity={handleDecreaseQuantity}
+        handleRemoveItem={handleRemoveItem}
+      />
     </div>
   );
 };
