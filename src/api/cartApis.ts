@@ -1,6 +1,6 @@
 import http from "@/utils/http";
 import Cookies from "js-cookie";
-import { CartResponse, Promotion } from "@/types/cartTypes";
+import { CartResponse, PaymentMethod, Promotion } from "@/types/cartTypes";
 
 export const fetchCart = async (employeeId: string): Promise<CartResponse> => {
   try {
@@ -111,12 +111,14 @@ export const updateItemQuantity = async (
     const response = await http.patch(`/cart/${employeeId}/update/${itemId}`, {
       quantity,
     });
-    return response.data.result;
+    return response.data.result; 
   } catch (error) {
     console.error("Error updating item quantity:", error);
     throw error;
   }
 };
+
+
 
 
 export const fetchPromotion = async (
@@ -127,6 +129,21 @@ export const fetchPromotion = async (
     return response.data.result;
   } catch (error) {
     console.error("Error fetching promotion:", error);
+    throw error;
+  }
+};
+export const fetchPaymentMethods = async (): Promise<PaymentMethod[]> => {
+  try {
+    const token = Cookies.get("token");
+    if (token) {
+      http.setToken(token);
+    }
+    const response = await http.get<{ result: PaymentMethod[] }>(
+      `/payment-methods`
+    );
+    return response.data.result;
+  } catch (error) {
+    console.error("Error fetching payment methods:", error);
     throw error;
   }
 };

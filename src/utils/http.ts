@@ -7,7 +7,7 @@ class Http {
   constructor() {
     this.instance = axios.create({
       baseURL: "http://localhost:8080/jewelry/v1/",
-      timeout: 10000,
+      timeout: 10000000,
       headers: {
         "Content-Type": "application/json",
       },
@@ -55,7 +55,7 @@ export class HttpError extends Error {
   status: number;
   payload: {
     message: string;
-    [key: string]: any; 
+    [key: string]: any;
   };
 
   constructor({

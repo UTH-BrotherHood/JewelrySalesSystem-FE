@@ -26,9 +26,9 @@ export const fetchProducts = async ({
     };
 
     const response = await http.get<FetchProductsResponse>("/products", config);
-    return response.data; // Accessing data from the response
+    return response.data;
   } catch (error) {
     console.error("Error fetching products:", error);
-    throw error; // Re-throw the error to be handled by the calling function
+    throw error; 
   }
 };
