@@ -68,7 +68,7 @@ export default function SidebarDashBoard() {
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/dashboard/settings",
       icon: <IconSettings className="h-5 w-5" />,
     },
   ];
