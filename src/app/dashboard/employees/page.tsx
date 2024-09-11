@@ -37,7 +37,7 @@ interface Employee {
   name: string;
   username: string;
   roles: Role[];
-  phone: string;
+  phoneNumber: string;
 }
 
 interface EmployeeResponse {
@@ -116,7 +116,7 @@ export default function EmployeesPage() {
                 <TableCell>
                   {employee.roles.map((role) => role.name).join(", ")}
                 </TableCell>
-                <TableCell>{employee.phone}</TableCell>
+                <TableCell>{employee.phoneNumber}</TableCell>
                 <TableCell className="flex text-xs justify-center items-center gap-2">
                   <Link
                     href={`/dashboard/employees/${employee.employeeId}/edit`}
