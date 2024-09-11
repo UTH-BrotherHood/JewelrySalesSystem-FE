@@ -1,24 +1,29 @@
-"use client";
+'use client';
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { useRouter } from 'next/navigation'; // Use this for navigation
+import jwt from "jsonwebtoken";
+import Cookie from 'js-cookie'; // Import js-cookie
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SignInBodyType } from "@/types/auth";
 import { useToast } from "@/components/ui/use-toast";
+import { useAppDispatch } from "@/lib/hooks";
+import { setEmployeeId } from "@/lib/slices/employeeSlice";
+
 export default function SignInForm() {
-  const router = useRouter();
+  const router = useRouter(); 
+  const dispatch = useAppDispatch(); 
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
 
   const form = useForm<SignInBodyType>({
     defaultValues: {
@@ -28,31 +33,47 @@ export default function SignInForm() {
   });
 
   async function onSubmit(values: SignInBodyType) {
-    if (loading) return;
+   
+ 
+
+    if (loading) return; 
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:8080/jewelry/v1/auth/sign-in",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(values),
-        }
-      );
+      const response = await fetch("http://localhost:8080/jewelry/v1/auth/sign-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log(data.result.token);
+      const token = data.result.token;
 
-      document.cookie = `token=${data.result.token}; path=/; max-age=${
-        7 * 24 * 60 * 60
-      }`; // Hết hạn sau 7 ngày
+      // Decode token to check expiration
+      const decodedToken = jwt.decode(token) as { exp?: number; employeeID?: string };
+
+      if (decodedToken?.exp) {
+        const expDate = new Date(decodedToken.exp * 1000);
+        const now = new Date();
+
+        if (expDate < now) {
+          throw new Error("Token has expired. Please sign in again.");
+        }
+
+        Cookie.set('token', token, { expires: expDate });
+      } else {
+        Cookie.set('token', token, { expires: 7 });
+      }
+
+      if (decodedToken?.employeeID) {
+        dispatch(setEmployeeId(decodedToken.employeeID));
+      }
 
       toast({
         title: "Sign-in",
@@ -62,13 +83,14 @@ export default function SignInForm() {
       router.push("/dashboard");
     } catch (error: any) {
       toast({
-        description: "Sign-in error",
+        description: `Sign-in error: ${error.message || "Unknown error"}`,
       });
       console.error("Sign-in error:", error);
     } finally {
       setLoading(false);
     }
   }
+
 
   return (
     <Form {...form}>
@@ -84,7 +106,6 @@ export default function SignInForm() {
               render={({ field }) => (
                 <div className="relative flex flex-col gap-2">
                   <FormItem className="flex items-center">
-                    {/* <FormLabel className="w-[6rem] text-text">Email</FormLabel> */}
                     <FormControl>
                       <Input
                         className="w-[24rem] h-[3rem] rounded-sm"
@@ -105,9 +126,6 @@ export default function SignInForm() {
               render={({ field }) => (
                 <div className="relative flex flex-col gap-2">
                   <FormItem className="flex items-center">
-                    {/* <FormLabel className="w-[6rem] text-text">
-                      Password
-                    </FormLabel> */}
                     <FormControl>
                       <Input
                         className="w-[24rem] h-[3rem] rounded-sm"

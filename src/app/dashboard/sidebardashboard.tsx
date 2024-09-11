@@ -1,95 +1,49 @@
-"use client";
+'use client'
 import React, { useState } from "react";
 import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconBuildingWarehouse,
-  IconDiamondFilled,
-  IconPackage,
-  IconSettings,
-  IconStack2,
-  IconTicket,
-  IconUserBolt,
-  IconUsers,
-  IconUsersGroup,
+  IconArrowLeft, IconDiamondFilled, IconPackage, IconStack2,
+  IconTicket, IconUsers, IconUsersGroup, IconSettings
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import avt from "@/assets/image/avt.jpg";
-import { on } from "events";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialog, AlertDialogAction, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-import { AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import { ModeToggle } from "@/components/ui/toggle-theme";
+import http from "@/utils/http"; // Import your HTTP instance
+import { AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 
 export default function SidebarDashBoard() {
   const router = useRouter();
   const { toast } = useToast();
+  const [open, setOpen] = useState(false);
 
   const links = [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-      icon: (
-        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Products",
-      href: "/dashboard/products",
-      icon: (
-        <IconPackage className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Categories",
-      href: "/dashboard/categories",
-      icon: (
-        <IconStack2 className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Orders",
-      href: "/dashboard/orders",
-      icon: (
-        <IconTicket className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Employees",
-      href: "/dashboard/employees",
-      icon: (
-        <IconUsers className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Customers",
-      href: "/dashboard/customers",
-      icon: (
-        <IconUsersGroup className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
-    {
-      label: "Settings",
-      href: "#",
-      icon: (
-        <IconSettings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-      ),
-    },
+    { label: "Dashboard", href: "/dashboard", icon: <IconDiamondFilled className="h-5 w-5" /> },
+    { label: "Products", href: "/dashboard/products", icon: <IconPackage className="h-5 w-5" /> },
+    { label: "Categories", href: "/dashboard/categories", icon: <IconStack2 className="h-5 w-5" /> },
+    { label: "Orders", href: "/dashboard/orders", icon: <IconTicket className="h-5 w-5" /> },
+    { label: "Employees", href: "/dashboard/employees", icon: <IconUsers className="h-5 w-5" /> },
+    { label: "Customers", href: "/dashboard/customers", icon: <IconUsersGroup className="h-5 w-5" /> },
+    { label: "Settings", href: "#", icon: <IconSettings className="h-5 w-5" /> }
   ];
-  const [open, setOpen] = useState(false);
+
+  const handleLogout = () => {
+    http.clearToken();
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    router.push("/sign-in");
+    toast({
+      title: "Logout",
+      description: "Logout successful",
+    });
+  };
+
   return (
     <div>
       <Sidebar open={open} setOpen={setOpen}>
@@ -100,94 +54,70 @@ export default function SidebarDashBoard() {
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}
-              <div className="">
-                <AlertDialog>
-                  <AlertDialogTrigger className="flex items-center justify-start gap-2  group/sidebar py-2 text-red-500">
-                    <IconArrowLeft className="  h-5 w-5 flex-shrink-0" />
-                    Logout
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="bg-white">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you sure you want to logout?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Your session will be closed and you will be logged out
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          // Delete the token cookie
-                          document.cookie =
-                            "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                          // Log the logout action
-
-                          router.push("/sign-in");
-
-                          toast({
-                            title: "Logout",
-                            description: "Logout success",
-                          });
-
-                          console.log("logout");
-                        }}
-                      >
-                        Continue
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+              <LogoutDialog onLogout={handleLogout} />
             </div>
           </div>
-          <div className="">
-            <SidebarLink
-              link={{
-                label: "Admin",
-                href: "#",
-                icon: (
-                  <Image
-                    src={avt}
-                    className="h-7 w-7 flex-shrink-0 rounded-full"
-                    width={50}
-                    height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
-          </div>
+          <SidebarFooter />
         </SidebarBody>
       </Sidebar>
     </div>
   );
 }
-export const Logo = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+
+const Logo = () => (
+  <Link href="#" className="flex items-center space-x-2 text-sm text-black">
+    <IconDiamondFilled />
+    <motion.span
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="font-medium text-black dark:text-white"
     >
-      <IconDiamondFilled />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium text-black dark:text-white whitespace-pre"
-      >
-        Jewelry Sales System
-      </motion.span>
-    </Link>
-  );
-};
-export const LogoIcon = () => {
-  return (
-    <Link
-      href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
-    >
-      <IconDiamondFilled />
-    </Link>
-  );
-};
+      Jewelry Sales System
+    </motion.span>
+  </Link>
+);
+
+const LogoIcon = () => (
+  <Link href="#" className="flex items-center space-x-2 text-sm text-black">
+    <IconDiamondFilled />
+  </Link>
+);
+
+const LogoutDialog = ({ onLogout }: { onLogout: () => void }) => (
+  <AlertDialog>
+    <AlertDialogTrigger className="flex items-center gap-2 text-red-500 py-2">
+      <IconArrowLeft className="h-5 w-5" />
+      Logout
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>Are you sure you want to logout?</AlertDialogTitle>
+        <AlertDialogDescription>
+          Your session will be closed and you will be logged out.
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogAction onClick={onLogout}>Continue</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+);
+
+const SidebarFooter = () => (
+  <SidebarLink
+    link={{
+      label: "Admin",
+      href: "#",
+      icon: (
+        <Image
+          src={avt}
+          className="h-7 w-7 rounded-full"
+          width={50}
+          height={50}
+          alt="Admin Avatar"
+        />
+      )
+    }}
+  />
+);
