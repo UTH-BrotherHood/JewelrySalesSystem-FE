@@ -42,7 +42,9 @@ export function AppearanceForm() {
   }, [theme]);
   const form = useForm<AppearanceFormValues>({
     resolver: zodResolver(appearanceFormSchema),
-    defaultValues,
+    defaultValues: {
+      theme: (theme as "light" | "dark") || "light",
+    },
   });
 
   function onSubmit(data: AppearanceFormValues) {
