@@ -2,7 +2,7 @@ import { FetchCategoriesOptions } from "@/types/categoryTypes";
 import { FetchProductsOptions } from "@/types/productTypes";
 import http from "@/utils/http";
 
-export const fetchCategories = async ({ search } : FetchCategoriesOptions)  => {
+export const fetchCategories = async ({ search }: FetchCategoriesOptions) => {
   try {
     const config = {
       params: {
@@ -16,4 +16,9 @@ export const fetchCategories = async ({ search } : FetchCategoriesOptions)  => {
     console.error("Error fetching categories:", error);
     throw error;
   }
+};
+
+export const createCategory = async (data: { name: string }) => {
+  const response = await http.post("/categories", data);
+  return response.data;
 };
