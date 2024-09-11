@@ -2,14 +2,14 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
-import { labels, priorities, statuses } from "./data/data";
-import { Task } from "./data/schema";
+import { categoryNames } from "./data/data";
+import { Product } from "./data/productsSchema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-export const columns: ColumnDef<Task>[] = [
+export const columns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -19,7 +19,8 @@ export const columns: ColumnDef<Task>[] = [
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        // eslint-disable-next-line jsx-a11y/aria-props
+        // aria-categoryName="Select all"
         className="translate-y-[2px]"
       />
     ),
@@ -27,7 +28,8 @@ export const columns: ColumnDef<Task>[] = [
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        // eslint-disable-next-line jsx-a11y/aria-props
+        // aria-categoryName="Select row"
         className="translate-y-[2px]"
       />
     ),
@@ -35,84 +37,122 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "name",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
+      <DataTableColumnHeader column={column} title="Name" />
     ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+    cell: ({ row }) => <div className="w-[200px]">{row.getValue("name")}</div>,
     enableSorting: false,
     enableHiding: false,
   },
   {
-    accessorKey: "title",
+    accessorKey: "description",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Title" />
+      <DataTableColumnHeader column={column} title="Description" />
     ),
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label);
+      const categoryName = categoryNames.find(
+        (categoryName) => categoryName.value === row.original.categoryName
+      );
 
       return (
         <div className="flex space-x-2">
-          {label && <Badge variant="outline">{label.label}</Badge>}
+          {categoryName && (
+            <Badge variant="outline">{categoryName.label}</Badge>
+          )}
           <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("title")}
+            {row.getValue("description")}
           </span>
         </div>
       );
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "costPrice",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Status" />
+      <DataTableColumnHeader column={column} title="Cost Price" />
     ),
     cell: ({ row }) => {
-      const status = statuses.find(
-        (status) => status.value === row.getValue("status")
+      const categoryName = categoryNames.find(
+        (categoryName) => categoryName.value === row.original.name
       );
-
-      if (!status) {
-        return null;
-      }
 
       return (
-        <div className="flex w-[100px] items-center">
-          {status.icon && (
-            <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+        <div className="flex space-x-2">
+          {categoryName && (
+            <Badge variant="outline">{categoryName.label}</Badge>
           )}
-          <span>{status.label}</span>
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("costPrice")}
+          </span>
         </div>
       );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
     },
   },
   {
-    accessorKey: "priority",
+    accessorKey: "weight",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Priority" />
+      <DataTableColumnHeader column={column} title="Weight" />
     ),
     cell: ({ row }) => {
-      const priority = priorities.find(
-        (priority) => priority.value === row.getValue("priority")
+      const categoryName = categoryNames.find(
+        (categoryName) => categoryName.value === row.original.categoryName
       );
 
-      if (!priority) {
-        return null;
-      }
-
       return (
-        <div className="flex items-center">
-          {priority.icon && (
-            <priority.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+        <div className="flex space-x-2">
+          {categoryName && (
+            <Badge variant="outline">{categoryName.label}</Badge>
           )}
-          <span>{priority.label}</span>
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("weight")}
+          </span>
         </div>
       );
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+  },
+  {
+    accessorKey: "laborCost",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Labor Cost" />
+    ),
+    cell: ({ row }) => {
+      const categoryName = categoryNames.find(
+        (categoryName) => categoryName.value === row.original.categoryName
+      );
+
+      return (
+        <div className="flex space-x-2">
+          {categoryName && (
+            <Badge variant="outline">{categoryName.label}</Badge>
+          )}
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("laborCost")}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "stoneCost",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Stone Cost" />
+    ),
+    cell: ({ row }) => {
+      const categoryName = categoryNames.find(
+        (categoryName) => categoryName.value === row.original.categoryName
+      );
+
+      return (
+        <div className="flex space-x-2">
+          {categoryName && (
+            <Badge variant="outline">{categoryName.label}</Badge>
+          )}
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("stoneCost")}
+          </span>
+        </div>
+      );
     },
   },
   {

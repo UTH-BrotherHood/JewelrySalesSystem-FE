@@ -4,8 +4,8 @@ import { Metadata } from "next";
 import { z } from "zod";
 
 import { columns } from "@/containers/dashboard/columns";
-import { taskSchema } from "@/containers/dashboard/data/schema";
 import { DataTable } from "@/containers/dashboard/data-table";
+import { productSchema } from "@/containers/dashboard/data/productsSchema";
 
 export const metadata: Metadata = {
   title: "Tasks",
@@ -15,30 +15,29 @@ export const metadata: Metadata = {
 // Simulate a database read for tasks.
 async function getTasks() {
   const data = await fs.readFile(
-    path.join(process.cwd(), "src/containers/dashboard/data/tasks.json")
+    path.join(process.cwd(), "src/containers/dashboard/data/products.json")
   );
 
-  const tasks = JSON.parse(data.toString());
+  const products = JSON.parse(data.toString());
 
-  return z.array(taskSchema).parse(tasks);
+  return z.array(productSchema).parse(products);
 }
 
-export default async function TaskPage() {
-  const tasks = await getTasks();
+export default async function CutomersPage() {
+  const products = await getTasks();
 
   return (
     <>
-      <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex bg-white rounded-lg">
+      <div className="p-4 bg-white rounded-lg">
         <div className="flex items-center justify-between space-y-2">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
             <p className="text-muted-foreground">
-              Here&apos;s a list of your tasks for this month!
+              Here&apos;s a list of your products
             </p>
           </div>
-          <div className="flex items-center space-x-2">{/* <UserNav /> */}</div>
         </div>
-        <DataTable data={tasks} columns={columns} />
+        <DataTable data={products} columns={columns} />
       </div>
     </>
   );

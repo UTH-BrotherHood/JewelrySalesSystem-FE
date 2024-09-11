@@ -1,160 +1,44 @@
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { IconEdit, IconEye, IconPlus, IconTrash } from "@tabler/icons-react";
-import Image from "next/image";
-import Link from "next/link";
+import { promises as fs } from "fs";
+import path from "path";
+import { Metadata } from "next";
+import { z } from "zod";
 
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-];
+import { columns } from "@/containers/dashboard/columns";
+import { DataTable } from "@/containers/dashboard/data-table";
+import { productSchema } from "@/containers/dashboard/data/productsSchema";
 
-export default function ProductsPage() {
+export const metadata: Metadata = {
+  title: "Products | Dashboard",
+  description: "A task and issue tracker build using Tanstack Table.",
+};
+
+// Simulate a database read for tasks.
+async function getTasks() {
+  const data = await fs.readFile(
+    path.join(process.cwd(), "src/containers/dashboard/data/products.json")
+  );
+
+  const products = JSON.parse(data.toString());
+
+  return z.array(productSchema).parse(products);
+}
+
+export default async function ProductsPage() {
+  const products = await getTasks();
+
   return (
-    <div className=" w-full">
-      <h1 className="text-2xl">Products</h1>
-      <div className="flex justify-end mb-3">
-        <Button className="ml-auto bg-buttonBlue">
-          <IconPlus />
-          Add Products
-        </Button>
+    <>
+      <div className="p-4 bg-white rounded-lg">
+        <div className="flex items-center justify-between space-y-2">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+            <p className="text-muted-foreground">
+              Here&apos;s a list of your products
+            </p>
+          </div>
+        </div>
+        <DataTable data={products} columns={columns} />
       </div>
-
-      <Table className="bg-white rounded-md  shadow-md">
-        <TableCaption>A list of products.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[25%]">Product</TableHead>
-            <TableHead className="">Description</TableHead>
-            <TableHead className="">CostPrice</TableHead>
-            <TableHead className="">Weight</TableHead>
-            <TableHead className="">LaborCost</TableHead>
-            <TableHead className="">StoneCost</TableHead>
-            <TableHead className="">Stock</TableHead>
-            <TableHead className="text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="space-y-[40px]">
-          {invoices.map((invoice) => (
-            <TableRow className="" key={invoice.invoice}>
-              <TableCell className="flex items-center gap-2 font-medium">
-                <div className="w-[44px] h-[44px] overflow-hidden">
-                  <Image
-                    src={
-                      "https://cdn-icons-png.freepik.com/512/7336/7336395.png"
-                    }
-                    alt="img"
-                    width={100}
-                    height={100}
-                    className="w-full h-full"
-                  />
-                </div>
-                <span>{invoice.invoice}</span>
-              </TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell className="flex text-xs justify-center items-center gap-2">
-                <Link href={"#"}>
-                  <IconEye className="w-4" />
-                </Link>
-                <Link href={"#"}>
-                  <IconEdit className="w-4" />
-                </Link>
-                <Link href={"#"}>
-                  <IconTrash className="w-4" />
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        {/* tesst */}
-        <TableFooter>
-          <TableRow></TableRow>
-        </TableFooter>
-      </Table>
-    </div>
+    </>
   );
 }
