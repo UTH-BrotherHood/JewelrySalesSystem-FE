@@ -62,7 +62,7 @@ function EditEmployeePage() {
     setLoading(true);
     try {
       const token = Cookies.get("token");
-      await http.put(`/employees/${employeeId}`, data, {
+      await http.patch(`/employees/${employeeId}`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast({ description: "Employee updated successfully" });
