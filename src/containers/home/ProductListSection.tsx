@@ -21,7 +21,7 @@ const ProductList = ({ selectedCategory, searchTerm, onAddToCart }: ProductListP
     const [page, setPage] = useState<number>(0);
     const [totalPages, setTotalPages] = useState<number>(1);
 
-    const pageLimit = 4;
+    const pageLimit = 12;
 
     useEffect(() => {
         fetchProductsData({
