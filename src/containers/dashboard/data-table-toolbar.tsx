@@ -7,6 +7,7 @@ import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { Button } from "@/components/ui/button";
 import { DataTableViewOptions } from "@/containers/dashboard/data-table-view-options";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -39,6 +40,9 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
+      <Button className="mr-4">
+        <Link href="/dashboard/products/create">Add Product</Link>
+      </Button>
       <DataTableViewOptions table={table} />
     </div>
   );
